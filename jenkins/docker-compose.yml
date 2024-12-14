@@ -1,0 +1,31 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Jenkins.Dockerfile
+    container_name: jenkins-container
+    ports:
+      - "8080:8080"
+    # isolate between different sets of containers
+    # only on the same network can communicate with each other
+    # check if network name is used or not? -> 'docker network ls' or 'docker network ls --filter name=[NETWORK_NAME]'
+    user: root
+    networks:
+      - jenkins-demo-network
+    volumes:
+      # TODO: jenkins_home, docker.sock, /usr/bin/docker
+      # why mounting?
+      # * even though mounting is two-way around, data stored in named volume (jenkins_home) persists even if the container is stopped or removed. Unless you explicitly remove it using 'docker volume rm' -> data persistence
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+
+# default driver: bridge
+# web application with a front-end and a back-end database, placing both containers on the same bridge network, they can communicate with each other directly.
+networks:
+  jenkins-demo-network:
+    driver: bridge
+
+# without defined volume like this, Docker will create anonymous volume -> no name so hard to track, clean up and control
+volumes:
+  jenkins_home:
