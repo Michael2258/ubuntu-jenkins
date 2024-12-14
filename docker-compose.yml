@@ -2,7 +2,7 @@ services:
   jenkins:
     build:
       context: .
-      dockerfile: Jenkins.Dockerfile
+      dockerfile: Dockerfile-Jenkins
     container_name: jenkins-container
     ports:
       - "8080:8080"
@@ -19,6 +19,23 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/local/bin/docker:/usr/local/bin/docker
+
+  ubuntu:
+    build:
+      context: .
+      dockerfile: Dockerfile-Ubuntu
+    container_name: ubuntu-ssh-container
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin:/usr/local/bin
+    networks:
+      - jenkins-demo-network
+    ports:
+      # this is for ssh login
+      - "2222:22"
+      # why need nginx -> provide several benefits
+      - "8086:8084"
 
 # default driver: bridge
 # web application with a front-end and a back-end database, placing both containers on the same bridge network, they can communicate with each other directly.
